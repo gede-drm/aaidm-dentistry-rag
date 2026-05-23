@@ -1,0 +1,608 @@
+{
+  "name": "AAIDM-Pediatric Dental RAG",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -464,
+        112
+      ],
+      "id": "76820d3b-2cd9-4a81-8c65-d252d60aaf48",
+      "name": "Telegram Trigger",
+      "webhookId": "52732796-9585-43f6-a4e9-2a4adabdf197",
+      "credentials": {
+        "telegramApi": {
+          "id": "WqIGCzkv5yk31DSu",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a69b0707-217c-453f-a40b-fe6e3875febe",
+              "name": "chatId",
+              "value": "={{ $json.message.chat.id }}",
+              "type": "number"
+            },
+            {
+              "id": "093269b9-3407-48ba-981b-85b7738e00ac",
+              "name": "userText",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -320,
+        112
+      ],
+      "id": "446a1dc2-61f1-44b7-966b-8af9d8aa38bf",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4697160e-135d-4e6b-ad6e-fae863439da4",
+              "leftValue": "={{ $json.userText }}",
+              "rightValue": "/start",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "5df398b9-64c6-4eab-8be1-9f21b62d81c1",
+              "leftValue": "={{ $json.userText }}",
+              "rightValue": "Hello",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "382504f0-597b-4a61-9683-ddd8cf17ad49",
+              "leftValue": "={{ $json.userText }}",
+              "rightValue": "Hi",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -176,
+        112
+      ],
+      "id": "c0fa0a23-eae4-4457-9252-dbc251bb339f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "qwen2.5:7b",
+          "mode": "list",
+          "cachedResultName": "qwen2.5:7b"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Classify this message into exactly one label: DENTAL, EMERGENCY, or OFF_TOPIC.\n\nDENTAL = about teeth, gums, mouth, dental pain, pediatric oral care, teething, braces, cavities.\n\nEMERGENCY = urgent: tooth knocked out, heavy bleeding, can't breathe, severe swelling.\n\nOFF_TOPIC = has nothing to do with dental/oral health.\n\nReply with ONLY the label. No punctuation, no explanation.\n\nMessage: {{ $('If').item.json.userText }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.ollama",
+      "typeVersion": 1,
+      "position": [
+        144,
+        160
+      ],
+      "id": "caea990c-d1f9-4c4c-bdfa-4c7d06b64447",
+      "name": "Message a model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "Ao41B1uUTlPM1PxV",
+          "name": "Ollama account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.content }}",
+                    "rightValue": "DENTAL",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "902b26b9-86f8-424d-8d40-0578e5da8967"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "68e270c8-a10a-4022-aaec-60bef5fb5614",
+                    "leftValue": "={{ $json.content }}",
+                    "rightValue": "EMERGENCY",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "aa3f4628-7408-439d-a637-1c908e652c3a",
+                    "leftValue": "={{ $json.content }}",
+                    "rightValue": "OFF_TOPIC",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        144
+      ],
+      "id": "b2c9c4e9-e075-48cf-931b-79a1ecdb1bd8",
+      "name": "Category Classification"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Edit Fields').item.json.chatId }}",
+        "text": "🦷✨ Welcome to Little Teeth Dental Clinic ✨🦷\n~小牙牙兒童牙醫診所~\n\nHello! I’m your friendly dental assistant 🤍\n哈囉！我是您的小牙牙貼心牙醫小助手 🤍\n\nHow can I help you today?\nWhat can I do for your little smile? 😊",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4ca57d8c-7068-4381-b02a-a26077588742",
+      "name": "Welcome Message",
+      "webhookId": "5146e640-6e3a-4a8e-b533-b103280edc9b",
+      "credentials": {
+        "telegramApi": {
+          "id": "WqIGCzkv5yk31DSu",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Edit Fields').item.json.chatId }}",
+        "text": "🦷✨ Oopsie!\n\nThat’s a little outside my tiny tooth world 😊\n\nI can only help with questions related to\nLittle Teeth Dental Clinic\n小牙牙兒童牙醫診所\n\nPlease ask about clinic information\nor your child’s dental care concerns 💛",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        352
+      ],
+      "id": "a91813c6-fa8e-4332-9ddd-e60743e07bb4",
+      "name": "Off Topic Message",
+      "webhookId": "5146e640-6e3a-4a8e-b533-b103280edc9b",
+      "credentials": {
+        "telegramApi": {
+          "id": "WqIGCzkv5yk31DSu",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:5501/ask",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ $('If').item.json.userText }}"
+            },
+            {
+              "name": "search_type",
+              "value": "local"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        592,
+        0
+      ],
+      "id": "2b9d5211-bfd4-496f-9701-4b94e4af15c2",
+      "name": "HTTP Request POST FastAPI"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Edit Fields').item.json.chatId }}",
+        "text": "=🦷✨ Hurray! Your request is ready…\n\nThank you for waiting!😊\nOur system has successfully processed your message and gathered everything you requested.\n\n👇 Here are your details below:\n{{ $json.response }}\n\nFor more inquiry or appointment, you can visit:\nLittle Teeth Dental Clinic\n小牙牙兒童牙醫診所\n\nNo. 76-1號, Section 4, Roosevelt Rd, Shuiyuan Village, Zhongzheng District, Taipei City, 100",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "d0ca10a9-2c53-4b0c-946f-240903e90830",
+      "name": "RAG Response Message",
+      "webhookId": "5146e640-6e3a-4a8e-b533-b103280edc9b",
+      "credentials": {
+        "telegramApi": {
+          "id": "WqIGCzkv5yk31DSu",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Edit Fields').item.json.chatId }}",
+        "text": "🦷✨ Processing your message…\n\nThank you for contacting Little Teeth Dental Clinic 小牙牙兒童牙醫診所 😊\nWe’re currently reviewing your request and getting things ready for you.\n\n⏳ Please hold on just a moment while we process your message.",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        160
+      ],
+      "id": "8e965180-f512-44cc-a326-3486fcd502fe",
+      "name": "Chat Confirmation Message",
+      "webhookId": "5146e640-6e3a-4a8e-b533-b103280edc9b",
+      "credentials": {
+        "telegramApi": {
+          "id": "WqIGCzkv5yk31DSu",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a69b0707-217c-453f-a40b-fe6e3875febe",
+              "name": "response",
+              "value": "={{ $json.response }}",
+              "type": "string"
+            },
+            {
+              "id": "b63a0a8d-9d22-4c4c-a991-4dc549295985",
+              "name": "status",
+              "value": "={{ $json.status }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        752,
+        0
+      ],
+      "id": "05d92442-27a0-4831-92c2-20baded68dff",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ce176879-84cf-4273-9a76-af89af860572",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        912,
+        0
+      ],
+      "id": "c78e91e8-ec5f-40e4-b77d-bc0ce9bf7a6e",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Edit Fields').item.json.chatId }}",
+        "text": "🦷✨ Oops! Our system is having a little toothache…\n\nThank you for contacting Little Teeth Dental Clinic 小牙牙兒童牙医診所 😊\nWe were unable to process your message just now due to a temporary system error.\n\n⏳ Please try sending your message one more time. \nWe appreciate your patience and are ready to help you as soon as it goes through!",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        176
+      ],
+      "id": "9cd00368-b4c8-4bf8-9289-90787e640fb9",
+      "name": "RAG Error Message",
+      "webhookId": "5146e640-6e3a-4a8e-b533-b103280edc9b",
+      "credentials": {
+        "telegramApi": {
+          "id": "WqIGCzkv5yk31DSu",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Edit Fields').item.json.chatId }}",
+        "text": "🦷⚠️ Dental Emergency Notice\n\nIf this is a dental emergency (such as severe tooth pain, heavy bleeding, facial swelling, trauma, or difficulty breathing/swallowing), please seek immediate assistance from a nearby healthcare provider or emergency unit.\n\nLittle Teeth Dental Clinic 小牙牙兒童牙醫診所’s chatbot is unable to provide emergency treatment or immediate medical assistance.\n\nYour safety comes first 💛\nPlease contact the nearest emergency dental or medical service right away if urgent care is needed.",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        592,
+        160
+      ],
+      "id": "5f3b0a54-34f5-4a18-88d3-bb4c9a9da7ed",
+      "name": "Emergency Handling Message",
+      "webhookId": "5146e640-6e3a-4a8e-b533-b103280edc9b",
+      "credentials": {
+        "telegramApi": {
+          "id": "WqIGCzkv5yk31DSu",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Welcome Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Chat Confirmation Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Category Classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Category Classification": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request POST FastAPI",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Emergency Handling Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Off Topic Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request POST FastAPI": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Confirmation Message": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RAG Response Message": {
+      "main": [
+        []
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "RAG Response Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "RAG Error Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "8e48ce42-6c61-4237-b737-f79b9f12651e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "20f4f91dd0ad1233ae46a2a7bf0b9e6058bb804da04ce43c45674f9aa49506f8"
+  },
+  "id": "e1jwcRvq0F9j1mvq",
+  "tags": []
+}
