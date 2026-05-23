@@ -21,3 +21,4 @@ This project is a final project for the Agentic AI and Digital Marketing course 
 ## References
 
 - Fleischer, D., Berchansky, M., Wasserblat, M., & Izsak, P. (2024). RAG Foundry: A Framework for Enhancing LLMs for Retrieval Augmented Generation. https://arxiv.org/abs/2408.02545
+- McDonald, R. E., Avery, D. R., & Dean, J. A. (2004). Dentistry for the child and adolescent (8th ed.). Mosby.
